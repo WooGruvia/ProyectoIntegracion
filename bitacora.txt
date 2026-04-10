@@ -1,0 +1,218 @@
+====================================================================================
+Documentación del proceso
+====================================================================================
+PROYECTO INTEGRACIÓN CONTINUA
+Nombre del Proyecto: ProyectoIntegracion
+Nombre del Desarrollador: Lenny Alejandra Roque Choque
+====================================================================================
+------------------------------------------------------------------------------------
+FASE 1 - PREPARACIÓN DE INFRAESTRUCTURA
+------------------------------------------------------------------------------------
+
+* Instalación manual en Windows:
+	● Instalar NVM (https://www.nvmnode.com/) y last node LTS
+		-NVM instalado
+    			- Versión: 1.2.2
+    			- Comando verificación: nvm --version
+		-Node.js LTS instalado
+    			- Versión: v24.14.1
+    			- Comando verificación: node --version
+	● Instalar npm, 
+		-npm instalado
+    			- Versión: 11.11.0
+    			- Comando verificación: npm --version
+
+	● Instalar GIT (https://git-scm.com/)
+		-GIT instalado
+    			- Versión: 2.47.0.windows.1
+   	 		- Comando verificación: git --version
+
+	● Instalar Docker (https://www.docker.com/)
+		-Docker instalado
+    			- Versión: 29.3.1
+			- Comando verificación: docker --version
+    			- Docker Compose: v5.1.1
+			- Comando verificación: docker compose version
+    			- Verificar que Docker no solo esta instalado sino que funciona completamente: docker run hello-world
+
+	● Instalar VS Code (https://visualstudio.microsoft.com/) o (https://vscodium.com/)
+		-VS Code instalado
+			- Versión: 1.114.0
+    			- Comando verificación: code --version
+
+			|| Herramientas instaladas: ||
+			- ESLint, para estandares de codificacion - dbaeumer.vscode-eslint
+    			- Prettier, para formato de codigo automatico (code style) - esbenp.prettier-vscode
+   			- SonarQube, como revisor de Clean Code - sonarsource.sonarlint-vscode
+    			- Jest, para ejecutar pruebas TDD - orta.vscode-jest
+    			- Error Lens, para resaltar errores - usernamehw.errorlens
+    			- Git Lens, Para trazabilidad en git - eamodio.gitlens
+    			- Docker extension, para gestión de contenedores - ms-azuretools.vscode-docker
+			* Comando verificación: code --list-extensions
+
+
+------------------------------------------------------------------------------------
+FASE 2 - INICIALIZAR EL PROYECTO
+------------------------------------------------------------------------------------
+* Se creo la carpeta del proyecto:
+	mkdir ProyectoIntegracion
+	cd ProyectoIntegracion
+* Y luego se inicializo Git y npm:
+	git init
+	npm init -y
+- Comando verificación(se de ver el archivo package.json creado): ls
+
+------------------------------------------------------------------------------------
+FASE 3 - INSTALAR DEPENDENCIAS (Node.js)
+------------------------------------------------------------------------------------
+* Se ejecuto el siguiente comando para creara automaticamente node_modules y package-lock,json:
+	npm install --save-dev eslint prettier eslint-config-prettier eslint-plugin-prettier husky lint-staged
+
+------------------------------------------------------------------------------------
+FASE 4 - ARCHIVOS DE CONFIGURACION "Archivo .prettierrc Y Archivo .eslintrc.json
+------------------------------------------------------------------------------------
+* Se abrio el proyeco "ProyectoIntegracion" en VS Code.
+* Se crearon los archivos ".prettierrc" y ".eslintrc.json" y se los guardaron en la raiz del proyecto.
+* Luego en el dentro del archivo ".prettierrc" se pego lo siguiente:
+	{
+	  "printWidth": 90,
+	  "tabWidth": 2,
+	  "useTabs": false,
+	  "semi": true,
+	  "singleQuote": true,
+	  "trailingComma": "all",
+	  "bracketSpacing": true,
+	  "arrowParens": "always",
+	  "endOfLine": "lf",
+	  "bracketSameLine": false
+	}
+
+* Se lo guardo con Ctrl+S y se uso el siguiente Comando para verificación: type .prettierrc
+* Luego se siguio el mismo procedimiento dentro del archivo ".eslintrc.json" se pego lo siguiente:
+	{
+	  "root": true,
+	  "parser": "@typescript-eslint/parser",
+	  "parserOptions": {
+	    "ecmaVersion": "latest",
+	    "sourceType": "module",
+	    "project": "./tsconfig.json"
+	  },
+	  "plugins": ["@typescript-eslint", "import"],
+	  "extends": [
+	    "eslint:recommended",
+	    "plugin:@typescript-eslint/recommended",
+	    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+	    "prettier"
+	  ],
+	  "rules": {
+	    "@typescript-eslint/no-explicit-any": "error",
+	    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+	    "@typescript-eslint/explicit-function-return-type": "off",
+	    "@typescript-eslint/no-floating-promises": "error",
+	    "@typescript-eslint/no-misused-promises": "error",
+	    "@typescript-eslint/await-thenable": "error",
+	    "no-console": ["warn", { "allow": ["warn", "error"] }],
+	    "import/order": [
+	      "error",
+	      {
+	        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+	        "newlines-between": "always",
+	        "alphabetize": { "order": "asc", "caseInsensitive": true }
+	      }
+	    ]
+	  }
+	}
+* Se lo guardo con Ctrl+S y se uso el siguiente Comando para verificación: type .eslintrc.json
+
+------------------------------------------------------------------------------------
+FASE 5 - CONFIGURACIÓN DE HUSKY PARA MEJOR USO DE HOOKS EN EL PROCESO DE INTEGRACION
+------------------------------------------------------------------------------------
+* Se instalo y se creo la carpeta de Husky usando:
+	npx husky-init && npm install
+  Esto crea la carpeta ".husky/" con el archivo "pre-commit" dentro, tambien intalara los Git hooks, y script "prepare" sera al "package.json".
+* Luego se abrio el archivo "pre-commmit" para poder editar la ultima linea:
+	Cambiamos esto: npm test      ====>     Por esto: npx lint-staged
+* Se lo guardo con Ctrl+S y se uso el siguiente Comando para verificación: type .husky\pre-commit 
+* Luego se agrego el hook "pre-push" usando:
+	npx husky add .husky/pre-push "npm test"
+  Esto crea un nuevo archivo "pre-push" dentro de la carpeta ".husky/" que evitará subir código si los tests fallan.
+
+------------------------------------------------------------------------------------
+FASE 6 - ACTUALIZACIÓN DE PACKAGE.JSON
+------------------------------------------------------------------------------------
+* Se editaron/agregaron las siguientes secciones dentro de "package.json":
+	"scripts": {
+	    "test": "jest",
+	    "lint": "eslint .",
+	    "format": "prettier --write .",
+	    "prepare": "husky install"
+	  },
+
+
+	"lint-staged": {
+	    "*.js": [
+	      "eslint --fix",
+	      "prettier --write"
+	    ]
+	  },
+
+------------------------------------------------------------------------------------
+FASE 7 - PREPARAR GITHUB ACTIONS
+------------------------------------------------------------------------------------
+* Se creo las carpetas y archivo usando:
+	mkdir .github
+	mkdir .github\workflows
+* Dentro de la carpeta".github/workflows" se creo un archivo llamado "ci.yml", y dentro de este se agrego/edito lo siguiente:
+	name: Node.js CI ProyectoIntegracion
+	
+	on:
+	  push:
+	    branches: [ main, develop ]
+	  pull_request:
+	    branches: [ main, develop ]
+
+	# Stop previous job on new push to same PR
+	concurrency:
+	  group: ${{ github.workflow }}-${{ github.ref }}
+	  cancel-in-progress: true
+	
+	jobs:
+	  quality-check:
+	    runs-on: ubuntu-latest
+	    strategy:
+	      matrix:
+	        node-version: [18.x, 20.x]
+	    steps:
+	      - name: Code Checkout
+	        uses: actions/checkout@v4
+	      - name: Node.js setup ${{ matrix.node-version }}
+	        uses: actions/setup-node@v4
+	        with:
+	          node-version: ${{ matrix.node-version }}
+	          cache: 'npm'
+	      - name: Clean dependency install
+	        run: npm ci
+	
+	      - name: Security auditing
+	        run: npm audit --audit-level=high
+	        continue-on-error: true # risk note
+	
+	      - name: Format check (Prettier)
+	        run: npm run format:check
+	
+	      - name: Check standard (Lint)
+	        run: npm run lint
+	
+	      - name: Type check (TypeScript)
+	        run: npx tsc --noEmit
+	
+	      - name: Run Tests
+	        run: npm test
+	        env:
+	          NODE_ENV: test
+	           # DATABASE_URL: ${{ secrets.DATABASE_URL }}
+	           
+	      - name: Build Check
+	        run: npm run build
+
+* Se lo guardo con Ctrl+S y se uso el siguiente Comando para verificación: type .github\workflows\ci.yml
